@@ -16,7 +16,12 @@ function App() {
          <AuthProvider>
             <Switch>
                {/* Drive */}
-               <PrivateRoute exact path path='/' component={Dashboard} />
+               <PrivateRoute exact path='/' component={Dashboard} />
+               <PrivateRoute
+                  exact
+                  path='/folder/:folderId'
+                  component={Dashboard}
+               />
 
                {/* Profile */}
                <PrivateRoute path='/user' component={Profile} />
