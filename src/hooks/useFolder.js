@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 const ACTIONS = {
    SELECT_FOLDER: 'select-folder',
    UPDATE_FOLDER: 'update-folder',
-   SET_CHILD_FOLDER: 'set-child-folder',
+   SET_CHILD_FOLDERS: 'set-child-folders',
 };
 
 const ROOT_FOLDER = { name: 'Root', id: null, path: [] };
@@ -17,14 +17,14 @@ const reducer = (state, { type, payload }) => {
             folderId: payload.folderId,
             folder: payload.folder,
             childFiles: [],
-            childFolder: [],
+            childFolders: [],
          };
       case ACTIONS.UPDATE_FOLDER:
          return {
             ...state,
             folder: payload.folder,
          };
-      case ACTIONS.SET_UPDATE_FOLDER:
+      case ACTIONS.SET_CHILD_FOLDERS:
          return {
             ...state,
             childFolders: payload.childFolders,
@@ -36,14 +36,15 @@ const reducer = (state, { type, payload }) => {
 };
 
 export const useFolder = (folderId = null, folder = null) => {
-   const { currentUser } = useAuth();
    const [state, dispatch] = useReducer(reducer, {
       folderId,
       folder,
       childFolders: [],
       childFiles: [],
    });
+   const { currentUser } = useAuth();
 
+   //Runs when folderId and folder changes
    useEffect(() => {
       dispatch({ type: ACTIONS.SELECT_FOLDER, payload: { folderId, folder } });
    }, [folderId, folder]);
@@ -55,6 +56,7 @@ export const useFolder = (folderId = null, folder = null) => {
             payload: { folder: ROOT_FOLDER },
          });
       }
+      console.log(folderId);
 
       database.folders
          .doc(folderId)
@@ -71,17 +73,19 @@ export const useFolder = (folderId = null, folder = null) => {
                payload: { folder: ROOT_FOLDER },
             });
          });
-   }, [folderId]);
+   }, [folder, folderId]);
 
    useEffect(() => {
       return database.folders
          .where('parentId', '==', folderId)
          .where('userId', '==', currentUser.uid)
-
+         .orderBy('createdAt')
          .onSnapshot((snapshot) => {
             dispatch({
                type: ACTIONS.SET_CHILD_FOLDER,
-               payload: { childFolders: snapshot.docs.map(database.formatDoc) },
+               payload: {
+                  childFolders: snapshot.docs.map(database.formatDoc),
+               },
             });
          });
    }, [currentUser.uid, folderId]);
