@@ -92,20 +92,18 @@ export function useFolder(folderId = null, folder = null) {
    }, [folderId, currentUser]);
 
    useEffect(() => {
-      return (
-         database.files
-            .where('folderId', '==', folderId)
-            .where('userId', '==', currentUser.uid)
-            // .orderBy("createdAt")
-            .onSnapshot((snapshot) => {
-               dispatch({
-                  type: ACTIONS.SET_CHILD_FILES,
-                  payload: {
-                     childFiles: snapshot.docs.map(database.formatDoc),
-                  },
-               });
-            })
-      );
+      return database.files
+         .where('folderId', '==', folderId)
+         .where('userId', '==', currentUser.uid)
+         .orderBy('createdAt')
+         .onSnapshot((snapshot) => {
+            dispatch({
+               type: ACTIONS.SET_CHILD_FILES,
+               payload: {
+                  childFiles: snapshot.docs.map(database.formatDoc),
+               },
+            });
+         });
    }, [folderId, currentUser]);
 
    return state;

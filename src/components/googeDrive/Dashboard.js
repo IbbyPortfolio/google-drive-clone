@@ -6,14 +6,16 @@ import { useFolder } from '../../hooks/useFolder';
 import Folder from './Folder';
 import { useParams, useLocation } from 'react-router';
 import FolderBreadcrumbs from './FolderBreadcrumbs';
+import AddFileButton from './AddFileButton';
+import File from './File';
 
 export default function Dashboard() {
    const { folderId } = useParams();
    const { state = {} } = useLocation();
-   const { folder, childFolders } = useFolder(folderId, state.folder);
-
-   console.log('childFolders', childFolders);
-   console.log('folder', folder);
+   const { folder, childFolders, childFiles } = useFolder(
+      folderId,
+      state.folder
+   );
 
    return (
       <>
@@ -21,6 +23,7 @@ export default function Dashboard() {
          <Container fluid>
             <div className='d-flex align-items-center'>
                <FolderBreadcrumbs currentFolder={folder} />
+               <AddFileButton currentFolder={folder} />
                <AddFolderButton currentFolder={folder} />
             </div>
             {childFolders.length > 0 && (
@@ -32,6 +35,20 @@ export default function Dashboard() {
                         className='p-2'
                      >
                         <Folder folder={childFolder}></Folder>
+                     </div>
+                  ))}
+               </div>
+            )}
+            {childFolders.length > 0 && childFiles.length > 0 && <hr />}
+            {childFiles.length > 0 && (
+               <div className='d-flex flex-wrap'>
+                  {childFiles.map((childFile) => (
+                     <div
+                        key={childFile.id}
+                        style={{ maxWidth: '250px' }}
+                        className='p-2'
+                     >
+                        <File file={childFile}></File>
                      </div>
                   ))}
                </div>
